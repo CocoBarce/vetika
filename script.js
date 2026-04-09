@@ -1,3 +1,16 @@
+// Initialize Lenis
+const lenis = new Lenis({
+    duration: 1.2,
+    easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+    smoothWheel: true
+});
+
+function raf(time) {
+    lenis.raf(time);
+    requestAnimationFrame(raf);
+}
+requestAnimationFrame(raf);
+
 const wrapper = document.getElementById('scroll-wrapper');
 const navbar = document.getElementById('navbar');
 const sections = document.querySelectorAll('.section');
@@ -5,68 +18,66 @@ const sideIndicators = document.querySelectorAll('.indicator');
 const navLinks = document.querySelectorAll('.nav-links a');
 const scrollProgress = document.getElementById('scroll-progress');
 
-// Escuchar evento de scroll en el wrapper principal
-if (wrapper) {
-    wrapper.addEventListener('scroll', () => {
-        // Barra de progreso horizontal
-        const scrollTop = wrapper.scrollTop;
-        const scrollHeight = wrapper.scrollHeight - wrapper.clientHeight;
-        const scrollPercent = scrollHeight > 0 ? (scrollTop / scrollHeight) * 100 : 0;
-        if (scrollProgress) scrollProgress.style.width = scrollPercent + '%';
+// Escuchar evento de scroll
+window.addEventListener('scroll', () => {
+    // Barra de progreso horizontal
+    const scrollTop = window.scrollY;
+    const scrollHeight = document.documentElement.scrollHeight - window.innerHeight;
+    const scrollPercent = scrollHeight > 0 ? (scrollTop / scrollHeight) * 100 : 0;
+    if (scrollProgress) scrollProgress.style.width = scrollPercent + '%';
 
-        // Blur y estilo del navbar
-        if (scrollTop > 50) {
-            navbar.classList.add('scrolled');
-        } else {
-            navbar.classList.remove('scrolled');
+    // Blur y estilo del navbar
+    if (scrollTop > 50) {
+        navbar.classList.add('scrolled');
+    } else {
+        navbar.classList.remove('scrolled');
+    }
+
+    // Determinar la sección actual
+    let current = '';
+    sections.forEach(section => {
+        const sectionTop = section.offsetTop;
+        const sectionHeight = section.clientHeight;
+        if (scrollTop >= (sectionTop - sectionHeight / 2)) {
+            current = section.getAttribute('id');
         }
-
-        // Determinar la sección actual
-        let current = '';
-        sections.forEach(section => {
-            const sectionTop = section.offsetTop;
-            const sectionHeight = section.clientHeight;
-            // Si el scroll llega a la mitad de la sección
-            if (scrollTop >= (sectionTop - sectionHeight / 2)) {
-                current = section.getAttribute('id');
-            }
-        });
-
-        // Cambio de color del menú si la sección es oscura (Mascotas o Contacto)
-        if (current === 'mascotas' || current === 'contacto') {
-            navbar.classList.add('dark-theme');
-        } else {
-            navbar.classList.remove('dark-theme');
-        }
-
-        // Actualizar indicadores laterales
-        sideIndicators.forEach(indicator => {
-            indicator.classList.remove('active');
-            if (indicator.getAttribute('data-target') === `#${current}`) {
-                indicator.classList.add('active');
-            }
-        });
-
-        // Actualizar links superiores
-        navLinks.forEach(link => {
-            link.classList.remove('active');
-            if (link.getAttribute('href') === `#${current}`) {
-                link.classList.add('active');
-            }
-        });
     });
-}
 
-// Navegación fluida al hacer click en links/indicadores
+    // Cambio de color del menú
+    if (current === 'mascotas' || current === 'contacto') {
+        navbar.classList.add('dark-theme');
+    } else {
+        navbar.classList.remove('dark-theme');
+    }
+
+    // Actualizar indicadores laterales
+    sideIndicators.forEach(indicator => {
+        indicator.classList.remove('active');
+        if (indicator.getAttribute('data-target') === `#${current}`) {
+            indicator.classList.add('active');
+        }
+    });
+
+    // Actualizar links superiores
+    navLinks.forEach(link => {
+        link.classList.remove('active');
+        if (link.getAttribute('href') === `#${current}`) {
+            link.classList.add('active');
+        }
+    });
+});
+
+// Navegación fluida sincronizada con Lenis
 document.querySelectorAll('a[href^="#"], button[data-target]').forEach(el => {
     el.addEventListener('click', (e) => {
         e.preventDefault();
         const targetId = el.getAttribute('href') || el.getAttribute('data-target');
         const target = document.querySelector(targetId);
-        if (target && wrapper) {
-            wrapper.scrollTo({
-                top: target.offsetTop,
-                behavior: 'smooth'
+        if (target) {
+            lenis.scrollTo(target, {
+                offset: 0,
+                duration: 1.5,
+                easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
             });
         }
     });
@@ -74,7 +85,7 @@ document.querySelectorAll('a[href^="#"], button[data-target]').forEach(el => {
 
 // Interesection Observer para animaciones "fade-in"
 const observerOptions = {
-    root: wrapper,
+    root: null,
     threshold: 0.15,
 };
 
