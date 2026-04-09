@@ -18,6 +18,9 @@ const sideIndicators = document.querySelectorAll('.indicator');
 const navLinks = document.querySelectorAll('.nav-links a');
 const scrollProgress = document.getElementById('scroll-progress');
 
+// Función de utilidad global para mobile
+const isMobile = () => window.matchMedia('(max-width: 800px)').matches;
+
 // Escuchar evento de scroll
 window.addEventListener('scroll', () => {
     // Barra de progreso horizontal
@@ -114,13 +117,24 @@ const setupCarousel = (carouselWrapper) => {
 
     if (prevBtn) {
         prevBtn.addEventListener('click', () => {
-            container.scrollBy({ left: -getScrollAmount(), behavior: 'smooth' });
+            const scrollLeft = container.scrollLeft;
+            if (scrollLeft <= 10) {
+                container.scrollTo({ left: container.scrollWidth, behavior: 'smooth' });
+            } else {
+                container.scrollBy({ left: -getScrollAmount(), behavior: 'smooth' });
+            }
         });
     }
 
     if (nextBtn) {
         nextBtn.addEventListener('click', () => {
-            container.scrollBy({ left: getScrollAmount(), behavior: 'smooth' });
+            const scrollLeft = container.scrollLeft;
+            const maxScroll = container.scrollWidth - container.clientWidth;
+            if (scrollLeft >= maxScroll - 10) {
+                container.scrollTo({ left: 0, behavior: 'smooth' });
+            } else {
+                container.scrollBy({ left: getScrollAmount(), behavior: 'smooth' });
+            }
         });
     }
 };
@@ -132,23 +146,52 @@ const personasSection = document.getElementById('personas');
 const personasCarousel = document.getElementById('carousel-personas');
 
 if (personasSection && personasCarousel) {
-    const isMobile = () => window.matchMedia('(max-width: 800px)').matches;
-
     const setBackground = (item) => {
         const bg = isMobile()
             ? (item.dataset.bgMobile || item.dataset.bg)
             : item.dataset.bg;
-        if (bg) personasSection.style.backgroundImage = `url('${bg}')`;
+        if (bg) {
+            personasSection.style.backgroundImage = `url('${bg}')`;
+            
+            // Ajustes específicos según la imagen
+            if (bg.includes('kids')) {
+                personasSection.classList.add('kids-active');
+                personasSection.classList.remove('sport-active');
+            } else if (bg.includes('sport')) {
+                personasSection.classList.add('sport-active');
+                personasSection.classList.remove('kids-active');
+            } else {
+                personasSection.classList.remove('kids-active', 'sport-active');
+            }
+        }
     };
 
-    const slideObserver = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-            if (entry.isIntersecting) setBackground(entry.target);
-        });
-    }, { root: personasCarousel, threshold: 0.5 });
-
     const bgItems = personasCarousel.querySelectorAll('.carousel-item[data-bg]');
-    bgItems.forEach(item => slideObserver.observe(item));
+
+    const updateBackgroundOnScroll = () => {
+        const containerRect = personasCarousel.getBoundingClientRect();
+        const midPoint = containerRect.left + containerRect.width / 2;
+        
+        let closestItem = null;
+        let minDistance = Infinity;
+        
+        bgItems.forEach(item => {
+            const itemRect = item.getBoundingClientRect();
+            const itemMid = itemRect.left + itemRect.width / 2;
+            const distance = Math.abs(midPoint - itemMid);
+            
+            if (distance < minDistance) {
+                minDistance = distance;
+                closestItem = item;
+            }
+        });
+        
+        if (closestItem) {
+            setBackground(closestItem);
+        }
+    };
+
+    personasCarousel.addEventListener('scroll', updateBackgroundOnScroll, { passive: true });
 
     // Fondo inicial
     if (bgItems.length > 0) setBackground(bgItems[0]);

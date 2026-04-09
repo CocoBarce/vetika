@@ -827,10 +827,73 @@ button {
     #personas::before {
         background: linear-gradient(
             to bottom,
-            rgba(10, 30, 18, 0.25) 0%,
-            rgba(10, 30, 18, 0.30) 40%,
-            rgba(10, 30, 18, 0.80) 100%
+            rgba(10, 30, 18, 0.45) 0%,
+            rgba(10, 30, 18, 0.60) 40%,
+            rgba(10, 30, 18, 0.85) 100%
         );
+    }
+
+    #equino {
+        background-position: 25% center;
+        background-size: cover;
+    }
+
+    #personas {
+        background-position: center;
+        background-size: cover;
+        transition: background-position 0.5s ease;
+    }
+
+    #personas.kids-active {
+        background-position: 65% center;
+    }
+
+    #personas.sport-active {
+        background-position: 40% center;
+    }
+
+    /* Testimonials Mobile Carousel */
+    .testimonials-section .carousel-wrapper .prev-btn,
+    .testimonials-section .carousel-wrapper .next-btn {
+        display: flex;
+        width: 40px;
+        height: 40px;
+        top: 50%;
+        transform: translateY(-50%);
+    }
+
+    .testimonials-section .carousel-wrapper .prev-btn { left: -10px; }
+    .testimonials-section .carousel-wrapper .next-btn { right: -10px; }
+
+    .testimonials-grid {
+        display: flex;
+        gap: 20px;
+        padding: 20px 0;
+        scroll-snap-type: x mandatory;
+    }
+
+    .testimonials-grid::before,
+    .testimonials-grid::after {
+        content: '';
+        flex: 0 0 12.5%;
+        min-width: 12.5%;
+    }
+
+    .testimonials-grid .carousel-item {
+        flex: 0 0 75%;
+        margin: 0;
+        scroll-snap-align: center;
+        display: flex;
+        justify-content: center;
+    }
+    
+    .testimonial-card {
+        padding: 30px 20px;
+        min-height: 280px;
+    }
+
+    .testimonial-text {
+        font-size: 1rem;
     }
 
     /* Header: vuelve a la izquierda en mobile */
@@ -927,9 +990,26 @@ button {
 
 .testimonials-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    grid-template-columns: repeat(3, 1fr);
     gap: 40px;
     margin-top: 50px;
+}
+
+@media (max-width: 800px) {
+    .testimonials-grid {
+        display: flex;
+        grid-template-columns: none;
+    }
+}
+
+.testimonials-section .carousel-wrapper .carousel-btn {
+    display: none;
+}
+
+@media (max-width: 800px) {
+    .testimonials-section .carousel-wrapper .carousel-btn {
+        display: flex;
+    }
 }
 
 .testimonial-card {
