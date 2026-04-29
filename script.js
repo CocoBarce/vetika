@@ -110,9 +110,9 @@ const setupCarousel = (carouselWrapper) => {
 
     if (!container) return;
 
-    // Obtener medida aproximada de scroll (80% del contenedor o 300px min)
+    // Obtener medida aproximada de scroll (100% del contenedor para un salto exacto)
     const getScrollAmount = () => {
-        return container.clientWidth * 0.8;
+        return container.clientWidth;
     };
 
     if (prevBtn) {

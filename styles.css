@@ -139,6 +139,32 @@ button {
     background-color: var(--color-light-green);
 }
 
+.bg-forest {
+    background-color: var(--color-forest);
+    color: var(--color-cream);
+}
+
+#testimonios.bg-forest .testimonial-card {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    color: var(--color-cream);
+}
+
+#testimonios.bg-forest .testimonial-text {
+    color: var(--color-cream);
+    opacity: 0.9;
+}
+
+#testimonios.bg-forest .testimonial-author strong {
+    color: var(--color-sage);
+}
+
+#testimonios.bg-forest .quote-icon {
+    color: var(--color-sage);
+    opacity: 0.3;
+}
+
 #equino {
     background-image: url('assets/fondo-corriendo.jpg');
     background-size: cover;
