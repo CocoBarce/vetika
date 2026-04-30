@@ -141,40 +141,40 @@ const setupCarousel = (carouselWrapper) => {
 
 document.querySelectorAll('.carousel-wrapper').forEach(setupCarousel);
 
-// Cambio de fondo dinámico según hover en #personas-grid (Vetika 2.0)
+// Cambio de fondo dinámico en #personas basado en el scroll del carrusel
 const personasSection = document.getElementById('personas');
-const personaCards = document.querySelectorAll('.persona-reveal-card');
+const personasCarousel = document.getElementById('carousel-personas');
+const personasCarouselItems = personasCarousel ? personasCarousel.querySelectorAll('.carousel-item') : [];
 
-if (personasSection && personaCards.length > 0) {
-    const setBackgroundByCard = (card) => {
-        // En 2.0 usamos data-bg en la tarjeta o su contenedor si fuera necesario,
-        // pero aquí lo definiremos basado en clases o atributos.
-        // Para simplicidad, extraeremos la imagen del contexto.
-        let bg = '';
-        if (card.classList.contains('card-lavanda')) bg = 'assets/tendogel-sportfondo.png';
-        if (card.classList.contains('card-manzanilla')) bg = 'assets/tendogel-sportfondo.png';
-        if (card.classList.contains('card-kids')) bg = 'assets/tendogel-fondokids.png';
+const updatePersonasBg = () => {
+    if (!personasSection || !personasCarousel || personasCarouselItems.length === 0) return;
+    const scrollLeft = personasCarousel.scrollLeft;
+    const itemWidth = personasCarousel.clientWidth;
+    const index = Math.round(scrollLeft / itemWidth);
+    const activeItem = personasCarouselItems[Math.min(index, personasCarouselItems.length - 1)];
+    if (!activeItem) return;
 
-        if (bg) {
-            personasSection.style.backgroundImage = `url('${bg}')`;
+    const bg = (isMobile() && activeItem.hasAttribute('data-bg-mobile'))
+        ? activeItem.getAttribute('data-bg-mobile')
+        : activeItem.getAttribute('data-bg');
 
-            // Ajustes de clases para posicionamiento
-            if (bg.includes('kids')) {
-                personasSection.classList.add('kids-active');
-                personasSection.classList.remove('sport-active');
-            } else if (bg.includes('sport') || bg.includes('manzanilla') || bg.includes('lavanda')) {
-                personasSection.classList.add('sport-active');
-                personasSection.classList.remove('kids-active');
-            }
+    if (bg) {
+        personasSection.style.backgroundImage = `url('${bg}')`;
+        if (bg.includes('kids')) {
+            personasSection.classList.add('kids-active');
+            personasSection.classList.remove('sport-active');
+        } else {
+            personasSection.classList.add('sport-active');
+            personasSection.classList.remove('kids-active');
         }
-    };
+    }
+};
 
-    personaCards.forEach(card => {
-        card.addEventListener('mouseenter', () => setBackgroundByCard(card));
-    });
-
-    // Fondo inicial (primera tarjeta)
-    setBackgroundByCard(personaCards[0]);
+if (personasCarousel) {
+    personasCarousel.addEventListener('scroll', updatePersonasBg, { passive: true });
+    // Fondo inicial al cargar
+    updatePersonasBg();
+    window.addEventListener('resize', updatePersonasBg);
 }
 
 // =============== VETIKA 2.0: FULL-SCREEN PRODUCT DETAIL LOGIC ===============
@@ -316,43 +316,7 @@ document.addEventListener('click', (e) => {
     }
 });
 
-// Lógica de fondo para secciones grid
-const setupGridBackground = (sectionId, gridId) => {
-    const section = document.getElementById(sectionId);
-    const grid = document.getElementById(gridId);
-    if (!section || !grid) return;
-
-    const cards = grid.querySelectorAll('.persona-reveal-card');
-
-    const setBg = (card) => {
-        let bg = '';
-        if (card.classList.contains('card-lavanda')) bg = 'assets/tendogelclasico.png';
-        if (card.classList.contains('card-manzanilla')) bg = 'assets/tendogel-sportfondo.png';
-        if (card.classList.contains('card-kids')) bg = 'assets/tendogel-fondokids.png';
-        if (card.classList.contains('card-caballos')) bg = 'assets/fondo-corriendo.jpg';
-        if (card.classList.contains('card-flyrepel')) bg = 'assets/fondo-corriendo.jpg';
-
-        if (bg) {
-            section.style.backgroundImage = `url('${bg}')`;
-            if (bg.includes('kids')) {
-                section.classList.add('kids-active');
-                section.classList.remove('sport-active');
-            } else if (bg.includes('sport') || bg.includes('fondo-corriendo')) {
-                section.classList.add('sport-active');
-                section.classList.remove('kids-active');
-            }
-        }
-    };
-
-    cards.forEach(card => {
-        card.addEventListener('mouseenter', () => setBg(card));
-    });
-
-    if (cards.length > 0) setBg(cards[0]);
-};
-
-setupGridBackground('personas', 'personas-grid');
-setupGridBackground('equino', 'equino-grid');
+// Eliminado el setupGridBackground que estaba roto y no se usaba correctamente en este layout
 const contactForm = document.getElementById('contact-form');
 if (contactForm) {
     contactForm.addEventListener('submit', (e) => {
